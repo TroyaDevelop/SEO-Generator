@@ -95,6 +95,36 @@ app.post('/generate-text/:id', async (req, res) => {
 });
 
 
+// --- API для ZennoPoster ---
+
+// 1. Получить все задачи для генерации (pay=1, text IS NULL)
+app.get('/tasks', async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT * FROM seo_orders WHERE pay = 1 AND text IS NULL');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+});
+
+// 2. Принять результат генерации текста от ZennoPoster
+app.post('/tasks/:id/complete', async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Text is required' });
+  try {
+    const [orderRows] = await pool.execute('SELECT * FROM seo_orders WHERE id = ?', [id]);
+    if (!orderRows.length) return res.status(404).json({ error: 'Order not found' });
+    await pool.execute('UPDATE seo_orders SET text = ? WHERE id = ?', [text, id]);
+    // Вернуть обновлённый заказ
+    const [updatedRows] = await pool.execute('SELECT * FROM seo_orders WHERE id = ?', [id]);
+    res.json(updatedRows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+});
+
+
 
 // SPA fallback: отдаём index.html только для не-API маршрутов
 app.get('*', (req, res, next) => {
@@ -102,7 +132,9 @@ app.get('*', (req, res, next) => {
     req.path.startsWith('/orders') ||
     req.path.startsWith('/create-order') ||
     req.path.startsWith('/pay-orders') ||
-    req.path.startsWith('/generate-text')
+    req.path.startsWith('/generate-text') ||
+    req.path.startsWith('/tasks') ||
+    req.path.startsWith('/download-text')
   ) {
     return next(); // пропускаем запрос к API
   }
