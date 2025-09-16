@@ -69,11 +69,20 @@ app.post('/generate-text/:id', async (req, res) => {
 });
 
 
-// SPA fallback: отдаём index.html для всех не-API маршрутов
-app.get('*', (req, res) => {
+
+// SPA fallback: отдаём index.html только для не-API маршрутов
+app.get('*', (req, res, next) => {
+  if (
+    req.path.startsWith('/orders') ||
+    req.path.startsWith('/create-order') ||
+    req.path.startsWith('/pay-orders') ||
+    req.path.startsWith('/generate-text')
+  ) {
+    return next(); // пропускаем запрос к API
+  }
   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${port}`);
 });
