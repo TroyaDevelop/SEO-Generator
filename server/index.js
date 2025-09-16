@@ -43,16 +43,27 @@ app.get('/download-text/:id', async (req, res) => {
   res.send(text);
 });
 
-// Создание заказа
-// Создание заказа (pay=0, ожидание оплаты)
+// Создание заказа (pay=0, ожидание оплаты, с уникальным токеном)
+import crypto from 'crypto';
+
 app.post('/create-order', async (req, res) => {
   const { keyword } = req.body;
   if (!keyword) return res.status(400).json({ error: 'keyword required' });
+
+  // Генерируем уникальный токен
+  let token;
+  let isUnique = false;
+  while (!isUnique) {
+    token = crypto.randomBytes(24).toString('hex');
+    const [rows] = await pool.execute('SELECT id FROM seo_orders WHERE token = ?', [token]);
+    if (rows.length === 0) isUnique = true;
+  }
+
   const [result] = await pool.execute(
-    'INSERT INTO seo_orders (keyword, pay) VALUES (?, 0)',
-    [keyword]
+    'INSERT INTO seo_orders (token, keyword, pay) VALUES (?, ?, 0)',
+    [token, keyword]
   );
-  res.json({ id: result.insertId, keyword, pay: 0, text: null });
+  res.json({ id: result.insertId, token, keyword, pay: 0, text: null });
 });
 
 // Получение всех заказов

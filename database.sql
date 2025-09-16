@@ -17,11 +17,13 @@
 -- Дамп структуры для таблица seo_db.seo_orders
 CREATE TABLE IF NOT EXISTS `seo_orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `token` varchar(64) DEFAULT NULL,
   `keyword` varchar(255) DEFAULT NULL,
   `pay` tinyint(1) DEFAULT NULL,
   `text` text DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Дамп данных таблицы seo_db.seo_orders: ~0 rows (приблизительно)
 DELETE FROM `seo_orders`;
