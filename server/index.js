@@ -31,6 +31,18 @@ const pool = createPool({
   queueLimit: 0
 });
 
+// Скачать сгенерированный текст заказа в .txt
+app.get('/download-text/:id', async (req, res) => {
+  const { id } = req.params;
+  const [rows] = await pool.execute('SELECT * FROM seo_orders WHERE id = ?', [id]);
+  if (!rows.length || !rows[0].text) return res.status(404).send('Text not found');
+  const keyword = rows[0].keyword;
+  const text = rows[0].text;
+  res.setHeader('Content-Disposition', `attachment; filename="seo-text-${id}.txt"`);
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.send(text);
+});
+
 // Создание заказа
 // Создание заказа (pay=0, ожидание оплаты)
 app.post('/create-order', async (req, res) => {
@@ -59,11 +71,14 @@ app.post('/pay-orders', async (req, res) => {
 // Генерация текста для заказа
 app.post('/generate-text/:id', async (req, res) => {
   const { id } = req.params;
-  // Простой шаблон генерации текста
+  const { text } = req.body; // Получаем текст от внешнего бота
+  
   const [orderRows] = await pool.execute('SELECT * FROM seo_orders WHERE id = ?', [id]);
   if (!orderRows.length) return res.status(404).json({ error: 'Order not found' });
-  const keyword = orderRows[0].keyword;
-  const generatedText = `SEO текст для ключевого слова: "${keyword}". Ваш бизнес будет расти!`;
+  
+  // Используем текст от бота или генерируем простой шаблон
+  const generatedText = text || `SEO текст для ключевого слова: "${orderRows[0].keyword}". Ваш бизнес будет расти!`;
+  
   await pool.execute('UPDATE seo_orders SET text = ? WHERE id = ?', [generatedText, id]);
   res.json({ id, text: generatedText });
 });

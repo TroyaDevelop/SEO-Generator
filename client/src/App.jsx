@@ -86,7 +86,25 @@ export default function App() {
                 <td style={{ border: '2px solid red', padding: 8 }}>
                   {order.pay === 1 ? (
                     order.text ? (
-                      <span style={{ color: 'green' }}>Готово</span>
+                      <>
+                        <span style={{ color: 'green', marginRight: 8 }}>Готово</span>
+                        <a
+                          href={`/download-text/${order.id}`}
+                          style={{
+                            border: '1px solid #aaa',
+                            padding: '2px 10px',
+                            marginLeft: 8,
+                            textDecoration: 'none',
+                            color: 'red',
+                            background: 'white',
+                            borderRadius: 4,
+                            fontSize: 14
+                          }}
+                          download
+                        >
+                          Скачать .txt
+                        </a>
+                      </>
                     ) : (
                       <button onClick={() => generateText(order.id)} disabled={loading}>
                         Сгенерировать текст
