@@ -3,14 +3,22 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { createPool } from 'mysql2/promise';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// TODO: Добавить авторизацию
+
+// Для поддержки __dirname в ES-модулях
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const port = 3001;
 
+
 app.use(cors());
 app.use(bodyParser.json());
+
+// Раздача статики React (build)
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // MariaDB pool
 const pool = createPool({
@@ -60,7 +68,11 @@ app.post('/generate-text/:id', async (req, res) => {
   res.json({ id, text: generatedText });
 });
 
-// TODO: Добавить эндпоинты для личного кабинета
+
+// SPA fallback: отдаём index.html для всех не-API маршрутов
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
