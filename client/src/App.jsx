@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // TODO: Личный кабинет
 
-const API_URL = 'http://localhost:3000';
+const API_URL = '';
 
 export default function App() {
   const [keyword, setKeyword] = useState('');
