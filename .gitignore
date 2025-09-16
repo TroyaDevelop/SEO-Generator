@@ -1,0 +1,34 @@
+node_modules/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+/dist
+/build
+
+# Vite/React
+client/node_modules/
+client/build/
+client/dist/
+
+# Server
+server/node_modules/
+server/build/
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.zip
+*.tar.gz
