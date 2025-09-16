@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 // MariaDB pool
 const pool = createPool({
-  host: 'localhost',
+  host: '127.0.0.1',
   user: 'seo_user',
   password: 'y7Jk2pQw9s',
   database: 'seo_db',
