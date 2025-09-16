@@ -42,13 +42,7 @@ export default function App() {
     setLoading(false);
   };
 
-  // Сгенерировать текст
-  const generateText = async (id) => {
-    setLoading(true);
-    await fetch(`${API_URL}/generate-text/${id}`, { method: 'POST' });
-    await fetchOrders();
-    setLoading(false);
-  };
+
 
   return (
     <div style={{ fontFamily: 'sans-serif', padding: 32 }}>
@@ -80,42 +74,40 @@ export default function App() {
                 </button>
               </td>
             </tr>
-            {orders.map(order => (
-              <tr key={order.id}>
-                <td style={{ border: '2px solid red', padding: 8 }}>{order.keyword}</td>
-                <td style={{ border: '2px solid red', padding: 8 }}>
-                  {order.pay === 1 ? (
-                    order.text ? (
-                      <>
-                        <span style={{ color: 'green', marginRight: 8 }}>Готово</span>
-                        <a
-                          href={`/download-text/${order.id}`}
-                          style={{
-                            border: '1px solid #aaa',
-                            padding: '2px 10px',
-                            marginLeft: 8,
-                            textDecoration: 'none',
-                            color: 'red',
-                            background: 'white',
-                            borderRadius: 4,
-                            fontSize: 14
-                          }}
-                          download
-                        >
-                          Скачать .txt
-                        </a>
-                      </>
-                    ) : (
-                      <button onClick={() => generateText(order.id)} disabled={loading}>
-                        Сгенерировать текст
-                      </button>
-                    )
-                  ) : (
-                    <span style={{ color: 'orange' }}>ожидание оплаты</span>
-                  )}
-                </td>
-              </tr>
-            ))}
+                {orders.map(order => (
+                  <tr key={order.id}>
+                    <td style={{ border: '2px solid red', padding: 8 }}>{order.keyword}</td>
+                    <td style={{ border: '2px solid red', padding: 8 }}>
+                      {order.pay === 1 ? (
+                        order.text ? (
+                          <>
+                            <span style={{ color: 'green', marginRight: 8 }}>Готово</span>
+                            <a
+                              href={`/download-text/${order.id}`}
+                              style={{
+                                border: '1px solid #aaa',
+                                padding: '2px 10px',
+                                marginLeft: 8,
+                                textDecoration: 'none',
+                                color: 'red',
+                                background: 'white',
+                                borderRadius: 4,
+                                fontSize: 14
+                              }}
+                              download
+                            >
+                              Скачать .txt
+                            </a>
+                          </>
+                        ) : (
+                          <span style={{ color: 'orange' }}>Ожидание...</span>
+                        )
+                      ) : (
+                        <span style={{ color: 'orange' }}>ожидание оплаты</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>
