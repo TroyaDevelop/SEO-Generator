@@ -1,3 +1,15 @@
+// Для ZennoPoster: получить все заказы, которые нужно сгенерировать (pay=1, text=null)
+export async function getTasksForBot() {
+  const [orders] = await pool.execute('SELECT * FROM seo_orders WHERE pay = 1 AND text IS NULL');
+  return orders;
+}
+
+// Для ZennoPoster: сохранить сгенерированный текст и обновить статус заказа
+export async function completeTaskForBot(orderId, text) {
+  await pool.execute('UPDATE seo_orders SET text = ?, pay = 3 WHERE id = ?', [text, orderId]);
+  const [orders] = await pool.execute('SELECT * FROM seo_orders WHERE id = ?', [orderId]);
+  return orders[0] || null;
+}
 import { pool } from './db.js';
 
 export async function getOrdersByUser(userId) {

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import taskRoutes from './routes/taskRoutes.js';
 
 // Для поддержки __dirname в ES-модулях
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 // API роуты
 app.use(userRoutes);
 app.use(orderRoutes);
+app.use(taskRoutes);
 
 // SPA fallback: отдаём index.html только для не-API маршрутов
 app.get('*', (req, res, next) => {

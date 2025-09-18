@@ -25,24 +25,17 @@ export default function App() {
 
   // Получить все заказы
   const fetchOrders = async () => {
-    if (!token) {
-      console.log('Нет токена, заказы не запрошены');
-      return setOrders([]);
-    }
-    console.log('Токен для заказов:', token);
+    if (!token) return setOrders([]);
     try {
       const res = await fetch(`${API_URL}/orders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log('Ответ сервера /orders:', res.status);
       if (res.status === 401) {
         setUser(null); setToken(''); localStorage.removeItem('jwt'); setOrders([]); return;
       }
       const data = await res.json();
-      console.log('Данные заказов:', data);
       setOrders(data);
     } catch (e) {
-      console.error('Ошибка при получении заказов:', e);
       setOrders([]);
     }
   };
