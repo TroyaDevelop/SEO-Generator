@@ -3,6 +3,7 @@ import OrderTable from './components/OrderTable.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import Header from './components/Header.jsx';
 import MainLanding from './components/MainLanding.jsx';
+import Toast from './components/Toast.jsx';
 
 // TODO: Личный кабинет
 
@@ -21,6 +22,9 @@ export default function App() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [authPasswordRepeat, setAuthPasswordRepeat] = useState('');
+  const [orderError, setOrderError] = useState('');
+  const [showOrderError, setShowOrderError] = useState(false);
 
 
   // Получить все заказы
@@ -61,11 +65,19 @@ export default function App() {
   const createOrder = async () => {
     if (!keyword || !token) return;
     setLoading(true);
-    await fetch(`${API_URL}/create-order`, {
+    const res = await fetch(`${API_URL}/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ keyword })
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setOrderError(data.error || 'Ошибка создания заказа');
+      setShowOrderError(true);
+      setLoading(false);
+      setTimeout(() => setShowOrderError(false), 3000);
+      return;
+    }
     setKeyword('');
     await fetchOrders();
     setLoading(false);
@@ -94,6 +106,12 @@ export default function App() {
   const handleAuth = async (e) => {
     e.preventDefault();
     setAuthError('');
+    if (authMode === 'register') {
+      if (authPassword !== authPasswordRepeat) {
+        setAuthError('Пароли не совпадают');
+        return;
+      }
+    }
     const url = authMode === 'login' ? '/login' : '/register';
     const res = await fetch(`${API_URL}${url}`, {
       method: 'POST',
@@ -105,7 +123,7 @@ export default function App() {
       setToken(data.token);
       localStorage.setItem('jwt', data.token);
       setShowAuth(false);
-      setAuthEmail(''); setAuthPassword('');
+      setAuthEmail(''); setAuthPassword(''); setAuthPasswordRepeat('');
     } else if (res.ok && data.email) { // регистрация успешна
       setAuthMode('login');
       setAuthError('Регистрация успешна, войдите!');
@@ -127,6 +145,8 @@ export default function App() {
         setAuthEmail={setAuthEmail}
         authPassword={authPassword}
         setAuthPassword={setAuthPassword}
+        authPasswordRepeat={authPasswordRepeat}
+        setAuthPasswordRepeat={setAuthPasswordRepeat}
         authError={authError}
         handleAuth={handleAuth}
         setShowAuth={setShowAuth}
@@ -134,6 +154,7 @@ export default function App() {
 
       {page === 'main' && (
         <div style={{position: 'relative', width: '100vw', minHeight: '100vh'}}>
+          <Toast show={showOrderError} message={orderError} />
           {user && (
             <div style={{
               position: 'absolute',

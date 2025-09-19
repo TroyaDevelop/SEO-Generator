@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default function AuthModal({
-  show, authMode, setAuthMode, authEmail, setAuthEmail, authPassword, setAuthPassword, authError, handleAuth, setShowAuth
+  show, authMode, setAuthMode, authEmail, setAuthEmail, authPassword, setAuthPassword, authPasswordRepeat, setAuthPasswordRepeat, authError, handleAuth, setShowAuth
 }) {
   if (!show) return null;
   return (
@@ -10,6 +10,9 @@ export default function AuthModal({
         <h3 style={{ marginTop: 0 }}>{authMode === 'login' ? 'Вход' : 'Регистрация'}</h3>
         <input type="email" placeholder="Email" value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{ width: '100%', marginBottom: 12, padding: 8 }} required />
         <input type="password" placeholder="Пароль" value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{ width: '100%', marginBottom: 12, padding: 8 }} required />
+        {authMode === 'register' && (
+          <input type="password" placeholder="Повторите пароль" value={authPasswordRepeat} onChange={e => setAuthPasswordRepeat(e.target.value)} style={{ width: '100%', marginBottom: 12, padding: 8 }} required />
+        )}
         {authError && <div style={{ color: 'red', marginBottom: 8 }}>{authError}</div>}
         <button type="submit" style={{ width: '100%', padding: 8, background: 'red', color: 'white', border: 'none', borderRadius: 4 }}>{authMode === 'login' ? 'Войти' : 'Зарегистрироваться'}</button>
         <div style={{ marginTop: 12, textAlign: 'center' }}>
