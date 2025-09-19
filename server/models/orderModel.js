@@ -1,3 +1,6 @@
+import { pool } from './db.js';
+import crypto from 'crypto';
+
 // Для ZennoPoster: получить все заказы, которые нужно сгенерировать (pay=1, text=null)
 export async function getTasksForBot() {
   const [orders] = await pool.execute('SELECT * FROM seo_orders WHERE pay = 1 AND text IS NULL');
@@ -10,7 +13,6 @@ export async function completeTaskForBot(orderId, text) {
   const [orders] = await pool.execute('SELECT * FROM seo_orders WHERE id = ?', [orderId]);
   return orders[0] || null;
 }
-import { pool } from './db.js';
 
 export async function getOrdersByUser(userId) {
   const [orders] = await pool.execute('SELECT * FROM seo_orders WHERE user_id = ? ORDER BY id DESC', [userId]);
@@ -18,7 +20,16 @@ export async function getOrdersByUser(userId) {
 }
 
 export async function createOrderForUser(userId, keyword) {
-  await pool.execute('INSERT INTO seo_orders (user_id, keyword, pay) VALUES (?, ?, 0)', [userId, keyword]);
+  // Генерируем уникальный токен
+  let token;
+  let isUnique = false;
+  while (!isUnique) {
+    token = crypto.randomBytes(24).toString('hex');
+    const [rows] = await pool.execute('SELECT id FROM seo_orders WHERE token = ?', [token]);
+    if (rows.length === 0) isUnique = true;
+  }
+  await pool.execute('INSERT INTO seo_orders (user_id, keyword, token, pay) VALUES (?, ?, ?, 0)', [userId, keyword, token]);
+  return token;
 }
 
 export async function payOrdersForUser(userId) {
