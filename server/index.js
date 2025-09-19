@@ -13,7 +13,7 @@ import taskRoutes from './routes/taskRoutes.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const port = 3001;
+const port = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
