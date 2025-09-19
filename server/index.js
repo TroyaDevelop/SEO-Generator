@@ -33,7 +33,8 @@ app.get('*', (req, res, next) => {
     req.path.startsWith('/pay-orders') ||
     req.path.startsWith('/generate-text') ||
     req.path.startsWith('/tasks') ||
-    req.path.startsWith('/download-text')
+    req.path.startsWith('/download-text') ||
+    req.path.startsWith('/download/')
   ) {
     return next(); // пропускаем запрос к API
   }

@@ -40,3 +40,8 @@ export async function getOrderTextById(orderId, userId) {
   const [orders] = await pool.execute('SELECT text FROM seo_orders WHERE id = ? AND user_id = ? AND pay = 3', [orderId, userId]);
   return orders[0]?.text || null;
 }
+
+export async function getOrderByToken(token) {
+  const [orders] = await pool.execute('SELECT * FROM seo_orders WHERE token = ? AND pay = 3', [token]);
+  return orders[0] || null;
+}

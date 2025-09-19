@@ -1,26 +1,6 @@
 import React from 'react';
 
-// Функция best practice для скачивания .txt с авторизацией
-async function downloadTxt(orderId, token) {
-  const response = await fetch(`http://localhost:3000/download-text/${orderId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  if (!response.ok) {
-    alert('Ошибка скачивания');
-    return;
-  }
-  const blob = await response.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `text_${orderId}.txt`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.URL.revokeObjectURL(url);
-}
-
-export default function OrderTable({ orders, loading, payOrders, token }) {
+export default function OrderTable({ orders, loading, payOrders }) {
   return (
     <div style={{ marginTop: 32, maxWidth: 700 }}>
       <h3>Ваши заказы</h3>
@@ -39,7 +19,8 @@ export default function OrderTable({ orders, loading, payOrders, token }) {
                 {order.pay === 3 && order.text ? (
                   <>
                     <span style={{ color: 'green' }}>Готово</span>
-                    <button
+                    <a
+                      href={`/download/${order.token}`}
                       style={{
                         border: '1px solid #aaa',
                         padding: '2px 10px',
@@ -48,13 +29,12 @@ export default function OrderTable({ orders, loading, payOrders, token }) {
                         color: 'red',
                         background: 'white',
                         borderRadius: 4,
-                        fontSize: 14,
-                        cursor: 'pointer'
+                        fontSize: 14
                       }}
-                      onClick={() => downloadTxt(order.id, token)}
+                      download
                     >
                       Скачать .txt
-                    </button>
+                    </a>
                   </>
                 ) : order.pay === 1 ? (
                   <span style={{ color: 'orange' }}>Ожидание...</span>

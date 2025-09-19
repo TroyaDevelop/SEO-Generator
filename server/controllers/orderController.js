@@ -2,7 +2,8 @@ import {
   getOrdersByUser, 
   createOrderForUser, 
   payOrdersForUser, 
-  getOrderTextById 
+  getOrderTextById,
+  getOrderByToken 
 } from '../models/orderModel.js';
 
 export async function getOrders(req, res) {
@@ -40,7 +41,23 @@ export async function downloadText(req, res) {
     const text = await getOrderTextById(id, req.user.id);
     if (!text) return res.status(404).send('Not found');
     res.setHeader('Content-Disposition', `attachment; filename="text_${id}.txt"`);
-    res.type('text/plain').send(text);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send(text);
+  } catch (e) {
+    res.status(500).send('Ошибка скачивания');
+  }
+}
+
+export async function downloadTextByToken(req, res) {
+  const { token } = req.params;
+  try {
+    const order = await getOrderByToken(token);
+    if (!order || !order.text) {
+      return res.status(404).send('Файл не найден или еще не готов');
+    }
+    res.setHeader('Content-Disposition', `attachment; filename="text_${order.id}.txt"`);
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send(order.text);
   } catch (e) {
     res.status(500).send('Ошибка скачивания');
   }
