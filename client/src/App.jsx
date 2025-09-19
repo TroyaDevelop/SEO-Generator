@@ -1,3 +1,22 @@
+// Функция best practice для скачивания .txt с авторизацией
+async function downloadTxt(orderId, token) {
+  const response = await fetch(`/download-text/${orderId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!response.ok) {
+    alert('Ошибка скачивания');
+    return;
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `text_${orderId}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
 import React, { useState, useEffect } from 'react';
 import OrderTable from './components/OrderTable.jsx';
 import AuthModal from './components/AuthModal.jsx';
@@ -163,8 +182,7 @@ export default function App() {
                         #{order.id}: <b>{order.keyword}</b> <span style={{color: '#aaa', fontSize: 15}}>({order.pay === 3 ? 'Готово' : order.pay === 1 ? 'В процессе' : 'Ожидание оплаты'})</span>
                       </span>
                       {order.pay === 3 && order.text && (
-                        <a
-                          href={`/download-text/${order.id}`}
+                        <button
                           style={{
                             border: '1px solid #a259e6',
                             padding: '2px 8px',
@@ -173,12 +191,13 @@ export default function App() {
                             color: '#a259e6',
                             background: '#f7f2fa',
                             textDecoration: 'none',
-                            marginLeft: 8
+                            marginLeft: 8,
+                            cursor: 'pointer'
                           }}
-                          download
+                          onClick={() => downloadTxt(order.id, token)}
                         >
                           Скачать .txt
-                        </a>
+                        </button>
                       )}
                     </div>
                   ))
