@@ -7,6 +7,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key';
 export async function register(req, res) {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  // Валидация пароля
+  if (typeof password !== 'string' || password.length < 8) {
+    return res.status(400).json({ error: 'Пароль должен быть не короче 8 символов' });
+  }
+  if (!/[0-9]/.test(password)) {
+    return res.status(400).json({ error: 'Пароль должен содержать хотя бы одну цифру' });
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    return res.status(400).json({ error: 'Пароль должен содержать хотя бы одну латинскую букву' });
+  }
   try {
     const exists = await getUserByEmail(email);
     if (exists) return res.status(409).json({ error: 'Email already registered' });

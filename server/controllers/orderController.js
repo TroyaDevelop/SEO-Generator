@@ -18,6 +18,9 @@ export async function getOrders(req, res) {
 export async function createOrder(req, res) {
   const { keyword } = req.body;
   if (!keyword) return res.status(400).json({ error: 'Не указано ключевое слово' });
+  if (typeof keyword !== 'string' || keyword.trim().length < 5) {
+    return res.status(400).json({ error: 'Ключевое слово должно быть не короче 5 символов' });
+  }
   try {
     await createOrderForUser(req.user.id, keyword);
     res.json({ success: true });
