@@ -2,7 +2,7 @@ import React from 'react';
 
 // Функция best practice для скачивания .txt с авторизацией
 async function downloadTxt(orderId, token) {
-  const response = await fetch(`/download-text/${orderId}`, {
+  const response = await fetch(`http://localhost:3000/download-text/${orderId}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!response.ok) {

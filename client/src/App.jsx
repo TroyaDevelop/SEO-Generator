@@ -1,6 +1,6 @@
 // Функция best practice для скачивания .txt с авторизацией
 async function downloadTxt(orderId, token) {
-  const response = await fetch(`/download-text/${orderId}`, {
+  const response = await fetch(`http://localhost:3000/download-text/${orderId}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!response.ok) {
@@ -25,7 +25,7 @@ import MainLanding from './components/MainLanding.jsx';
 
 // TODO: Личный кабинет
 
-const API_URL = '';
+const API_URL = 'http://localhost:3000';
 
 
 export default function App() {
