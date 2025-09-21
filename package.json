@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\""
+    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
+  "prod": "rm -rf client/build && npm run build --prefix client && npm run start --prefix server"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "multer": "^2.0.2"
   }
 }

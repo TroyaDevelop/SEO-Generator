@@ -8,12 +8,14 @@ import { fileURLToPath } from 'url';
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
+import seoPageRoutes from './routes/seoPageRoutes.js';
+import './controllers/semanticController.js'; // для esm-импорта, если потребуется
 
 // Для поддержки __dirname в ES-модулях
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,6 +26,8 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 app.use(userRoutes);
 app.use(orderRoutes);
 app.use(taskRoutes);
+app.use(seoPageRoutes);
+// Роут для генерации семантики теперь внутри seoPageRoutes
 
 // SPA fallback: отдаём index.html только для не-API маршрутов
 app.get('*', (req, res, next) => {

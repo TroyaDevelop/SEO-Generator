@@ -32,3 +32,6 @@ server/build/
 # Misc
 *.zip
 *.tar.gz
+
+# Project progress checklist (not for git)
+PROJECT_PROGRESS_CHECKLIST.md

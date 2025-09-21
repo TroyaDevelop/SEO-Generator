@@ -1,0 +1,36 @@
+.orderTableWrap {
+  margin-top: 32px;
+  max-width: 700px;
+}
+.orderTable {
+  border: 2px solid #e25959;
+  border-collapse: collapse;
+  width: 100%;
+}
+.orderTable th, .orderTable td {
+  border: 2px solid #e25959;
+  padding: 8px;
+}
+.statusReady {
+  color: #2bbd5a;
+  font-weight: 600;
+}
+.statusWait {
+  color: #e2a259;
+  font-weight: 500;
+}
+.downloadBtn {
+  border: 1px solid #aaa;
+  padding: 2px 10px;
+  margin-left: 8px;
+  text-decoration: none;
+  color: #e25959;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.downloadBtn:hover {
+  background: #f7eaea;
+}

@@ -1,3 +1,16 @@
+-- Дамп структуры для таблица seo_db.semantic_collections
+CREATE TABLE IF NOT EXISTS `semantic_collections` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `main_keyword` varchar(255) NOT NULL,
+  `semantic_keywords` longtext DEFAULT NULL,
+  `created_at` timestamp DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `fk_semcoll_user_id` (`user_id`),
+  CONSTRAINT `fk_semcoll_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- --------------------------------------------------------
 -- Хост:                     127.0.0.1
 -- Версия сервера:  10.11.13-MariaDB-0ubuntu0.24.04.1 - Ubuntu 24.04
@@ -41,6 +54,28 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Дамп данных таблицы seo_db.users: ~0 rows (приблизительно)
+
+
+-- Дамп структуры для таблица seo_db.seo_pages
+CREATE TABLE IF NOT EXISTS `seo_pages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `main_keyword` varchar(255) NOT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `semantic_keywords` longtext DEFAULT NULL,
+  `images` longtext DEFAULT NULL,
+  `phone` varchar(32) DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `subcategory` varchar(100) DEFAULT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `video_url` varchar(512) NOT NULL,
+  `status` enum('pending','ready','published') DEFAULT 'pending',
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_seopage_user_id` (`user_id`),
+  CONSTRAINT `fk_seopage_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

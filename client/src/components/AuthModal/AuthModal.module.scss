@@ -1,0 +1,59 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.modalForm {
+  background: #fff;
+  max-width: 320px;
+  margin: 80px auto;
+  padding: 24px;
+  border: 2px solid #e25959;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08);
+  min-width: 280px;
+}
+.modalForm h3 {
+  margin-top: 0;
+}
+.input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 16px;
+}
+.error {
+  color: #e25959;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.submitBtn {
+  width: 100%;
+  padding: 8px;
+  background: #e25959;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.switchLink {
+  margin-top: 12px;
+  text-align: center;
+  display: block;
+  color: #5a6ee6;
+  cursor: pointer;
+  font-size: 15px;
+  text-decoration: underline;
+}
