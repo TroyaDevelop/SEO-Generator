@@ -1,8 +1,9 @@
-
-
-import React, { useState, useEffect } from 'react';
+import checkedSvg from '../../assets/svg/checked.svg';
 import bg from '../../assets/svg/background.svg';
 import styles from './SeoPagesPanel.module.scss';
+import SharedLandingBg from '../SharedLandingBg/SharedLandingBg';
+
+import React, { useEffect, useState } from 'react';
 
 export default function SeoPagesPanel() {
   // Состояния для формы (минимальный каркас)
@@ -18,6 +19,8 @@ export default function SeoPagesPanel() {
     images: [],
     imageSource: 'own', // own/other/stock
   });
+  // active tab: 'create' | 'list'
+  const [activeTab, setActiveTab] = useState('create');
   // Состояние для семантики (заглушка)
   const [semanticList, setSemanticList] = useState([]); // [{word, checked}]
   const [semLoading, setSemLoading] = useState(false);
@@ -176,6 +179,7 @@ export default function SeoPagesPanel() {
     }
     setToast('SEO-страница создана!');
     setTimeout(() => setToast(''), 2000);
+    
     fetchPages();
     setForm({
       main_keyword: '', city: '', country: '', semantic_keywords: [''], phone: '', category: '', subcategory: '', company_name: '', video_url: '', images: [], imageSource: 'own'
@@ -184,124 +188,161 @@ export default function SeoPagesPanel() {
 
 
   return (
-    <div
-      className={styles.root}
-      style={{ background: `url(${bg}) center center/cover no-repeat` }}
-    >
+    <SharedLandingBg className={styles.root}>
       <div className={styles.panel}>
-        <h2 className={styles.title}>Генератор SEO-страниц</h2>
         {toast && <div className={styles.toast}>{toast}</div>}
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.row}>
-            <input name="main_keyword" value={form.main_keyword} onChange={handleChange} placeholder="Основное ключевое слово" className={styles.input} required />
-            <input name="city" value={form.city} onChange={handleChange} placeholder="Город" className={styles.input} />
-            <input name="country" value={form.country} onChange={handleChange} placeholder="Страна" className={styles.input} />
-          </div>
-          <div className={styles.mb12}>
-            <div className={styles.keywordsLabel}>
-              Ключевые слова:
+
+        <div className={styles.columns}>
+          <aside className={styles.leftColumn}>
+            <div className={styles.leftHeader}>
+              <div className={styles.logoRow1}>
+                <span className={styles.logoSEO}>SEO</span>
+                <span className={styles.logoGenerator}>Generator</span>
+              </div>
+              <div className={styles.logoRow2}>
+                <span className={styles.logoPages}>pages</span>
+              </div>
+            </div>
+            <div className={styles.leftTabsWrap}>
               <button
                 type="button"
-                onClick={fetchSemantics}
-                className={styles.semanticBtn}
-                disabled={semLoading || !form.main_keyword}
+                className={activeTab === 'create' ? styles.leftTabActive : styles.leftTab}
+                onClick={() => setActiveTab('create')}
               >
-                {semLoading ? 'Подбираю...' : 'Подобрать семантику'}
+                сгенерировать страницу
+              </button>
+              <button
+                type="button"
+                className={activeTab === 'list' ? styles.leftTabActive : styles.leftTab}
+                onClick={() => setActiveTab('list')}
+              >
+                Ваши CEO страницы
               </button>
             </div>
-            {semanticList.length > 0 && (
-              <div className={styles.semanticList}>
-                {semanticList.map((item, i) => (
-                  <label key={i} className={styles.semanticItem}>
-                    <input type="checkbox" checked={item.checked} onChange={() => handleSemanticCheck(i)} />
-                    <span>{item.word}</span>
-                  </label>
-                ))}
+            <div className={styles.leftIconsBg}>
+              {/* SVG-иконки, если есть: globe, list, key, search */}
+              {/* Пример: <img src={require('../../assets/svg/globe.svg')} alt="globe" className={styles.iconGlobe} /> */}
+              {/* <img src={require('../../assets/svg/list.svg')} alt="list" className={styles.iconList} /> */}
+              {/* <img src={require('../../assets/svg/key.svg')} alt="key" className={styles.iconKey} /> */}
+              {/* <img src={require('../../assets/svg/search.svg')} alt="search" className={styles.iconSearch} /> */}
+            </div>
+          </aside>
+
+          <main className={styles.rightColumn}>
+            {activeTab === 'create' && (
+              <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.inputRow}>
+                  <input name="main_keyword" value={form.main_keyword} onChange={handleChange} placeholder="основное ключевое слово" className={styles.mainKeywordInput} required />
+                </div>
+                <div className={styles.inputRow}>
+                  <input name="city" value={form.city} onChange={handleChange} placeholder="Город" className={styles.rowInput} />
+                  <input name="country" value={form.country} onChange={handleChange} placeholder="Страна" className={styles.rowInput} />
+                  <input name="phone" value={form.phone} onChange={handleChange} placeholder="Телефон" className={styles.rowInput} />
+                </div>
+                <div className={styles.keywordsBlock}>
+                  <div className={styles.keywordsLabel}>
+                    <span className={styles.keywordsLabelLarge}>Ключевые слова...</span>
+                    <img src={checkedSvg} alt="checked" style={{height:'22px', marginLeft:'8px', verticalAlign:'middle'}} />
+                    <span className={styles.selectedText}>Выбрано!</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchSemantics}
+                    className={styles.semanticBtnWide}
+                    disabled={semLoading || !form.main_keyword}
+                  >
+                    подобрать семантику
+                  </button>
+                </div>
+                <div className={styles.inputRow}>
+                  <input name="category" value={form.category} onChange={handleChange} placeholder="Категория" className={styles.input350} />
+                  <input name="subcategory" value={form.subcategory} onChange={handleChange} placeholder="Подкатегория" className={styles.input350} />
+                </div>
+                <div className={styles.inputRow}>
+                  <input name="company_name" value={form.company_name} onChange={handleChange} placeholder="Название Компании" className={styles.input350} />
+                </div>
+                <div className={styles.inputRow}>
+                  <input name="video_url" value={form.video_url} onChange={handleChange} placeholder="Ссылка на видео (обязательно)" className={styles.inputWide758} required />
+                </div>
+                <div className={styles.imagesBlock}>
+                  <div className={styles.imagesLabel}>Источник изображений:</div>
+                  <div className={styles.imagesRadios}>
+                    <label className={form.imageSource === 'own' ? `${styles.radioLabel} ${styles.radioLabelActive}` : styles.radioLabel}>
+                      <input type="radio" name="imageSource" value="own" checked={form.imageSource === 'own'} onChange={handleChange} />
+                      <span className={styles.radioCustom} aria-hidden="true"></span>
+                      <span className={styles.radioText}>Свои</span>
+                    </label>
+                    <label className={form.imageSource === 'other' ? `${styles.radioLabel} ${styles.radioLabelActive}` : styles.radioLabel}>
+                      <input type="radio" name="imageSource" value="other" checked={form.imageSource === 'other'} onChange={handleChange} />
+                      <span className={styles.radioCustom} aria-hidden="true"></span>
+                      <span className={styles.radioText}>Чужие</span>
+                    </label>
+                    <label className={form.imageSource === 'stock' ? `${styles.radioLabel} ${styles.radioLabelActive}` : styles.radioLabel}>
+                      <input type="radio" name="imageSource" value="stock" checked={form.imageSource === 'stock'} onChange={handleChange} />
+                      <span className={styles.radioCustom} aria-hidden="true"></span>
+                      <span className={styles.radioText}>Фотобанк</span>
+                    </label>
+                  </div>
+                </div>
+                <div className={styles.startBtnRow}>
+                  <div className={styles.startLine}></div>
+                  <button type="submit" className={styles.startBtn}>START</button>
+                  <div className={styles.startLine}></div>
+                </div>
+              </form>
+            )}
+
+            {activeTab === 'list' && (
+              <div className={styles.listTabWrap}>
+                <div className={styles.filterRowWrap}>
+                  <div className={styles.statusRow}>
+                    <div className={styles.statusLabel}>Статус:</div>
+                    <div className={styles.selectWrap}>
+                      <select
+                        value={statusFilter}
+                        onChange={e => setStatusFilter(e.target.value)}
+                        className={styles.selectCustom}
+                      >
+                        <option value="all">Все</option>
+                        <option value="pending">pending</option>
+                        <option value="ready">ready</option>
+                        <option value="published">published</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.pagesPanel}>
+                  <div className={styles.pagesHeaderRow}>
+                    <div className={styles.hCell}>ID</div>
+                    <div className={styles.hCell}>Ключевое слово</div>
+                    <div className={styles.hCell}>Город</div>
+                    <div className={styles.hCell}>Статус</div>
+                    <div className={styles.hCell}>Действия</div>
+                  </div>
+                  <div className={styles.pagesScrollArea}>
+                    {pages.filter(p => statusFilter === 'all' || p.status === statusFilter).map(page => (
+                      <div key={page.id} className={styles.pageRow}>
+                        <div className={styles.cId}>{page.id}</div>
+                        <div className={styles.cKeyword}>{page.main_keyword}</div>
+                        <div className={styles.cCity}>{page.city}</div>
+                        <div className={styles.cStatus}>{page.status}</div>
+                        <div className={styles.cActions}>
+                          {(page.status === 'pending' || page.status === 'ready') && (
+                            <button className={styles.rowEditBtn}>Редактировать</button>
+                          )}
+                          {page.status === 'published' && <span className={styles.dash}>—</span>}
+                        </div>
+                      </div>
+                    ))}
+                    {pages.length === 0 && <div className={styles.noPages}>Нет страниц</div>}
+                  </div>
+                </div>
               </div>
             )}
-            {semanticList.length > 0 && (
-              <button
-                type="button"
-                onClick={saveSelectedSemantics}
-                className={styles.saveSemBtn}
-              >
-                Сохранить выбранные
-              </button>
-            )}
-          </div>
-          <div className={styles.mb12}>
-            <label className={styles.label}>Источник изображений:</label>
-            <label>
-              <input type="radio" name="imageSource" value="own" checked={form.imageSource === 'own'} onChange={handleChange} /> Свои
-            </label>
-            <label className={styles.ml12}>
-              <input type="radio" name="imageSource" value="other" checked={form.imageSource === 'other'} onChange={handleChange} /> Чужие
-            </label>
-            <label className={styles.ml12}>
-              <input type="radio" name="imageSource" value="stock" checked={form.imageSource === 'stock'} onChange={handleChange} /> Фотобанк
-            </label>
-          </div>
-          <div className={styles.mb12}>
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="Телефон" className={styles.inputPhone} />
-          </div>
-          <div className={`${styles.mb12} ${styles.row}`}>
-            <input name="category" value={form.category} onChange={handleChange} placeholder="Категория" className={styles.input} />
-            <input name="subcategory" value={form.subcategory} onChange={handleChange} placeholder="Подкатегория" className={styles.input} />
-          </div>
-          <div className={styles.mb12}>
-            <input name="company_name" value={form.company_name} onChange={handleChange} placeholder="Название компании" className={styles.inputWide} />
-          </div>
-          <div className={styles.mb12}>
-            <input name="video_url" value={form.video_url} onChange={handleChange} placeholder="Ссылка на видео (обязательно)" className={styles.inputWide} required />
-          </div>
-          {/* Загрузчик изображений и чекбоксы для semantic_keywords будут позже */}
-          <button type="submit" className={styles.submitBtn}>Создать SEO-страницу</button>
-        </form>
-        <div className={styles.pagesBlock}>
-          <h3 className={styles.pagesTitle}>Ваши SEO-страницы</h3>
-          <div className={styles.mb12}>
-            <label className={styles.label} style={{ marginRight: 8 }}>Статус:</label>
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-              className={styles.select}
-            >
-              <option value="all">Все</option>
-              <option value="pending">pending</option>
-              <option value="ready">ready</option>
-              <option value="published">published</option>
-            </select>
-          </div>
-          <table className={styles.table}>
-            <thead>
-              <tr className={styles.tableHeadRow}>
-                <th className={styles.tableCell}>ID</th>
-                <th className={styles.tableCell}>Ключевое слово</th>
-                <th className={styles.tableCell}>Город</th>
-                <th className={styles.tableCell}>Статус</th>
-                <th className={styles.tableCell}>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pages.filter(p => statusFilter === 'all' || p.status === statusFilter).map(page => (
-                <tr key={page.id}>
-                  <td className={styles.tableCell}>{page.id}</td>
-                  <td className={styles.tableCell}>{page.main_keyword}</td>
-                  <td className={styles.tableCell}>{page.city}</td>
-                  <td className={styles.tableCell}>{page.status}</td>
-                  <td className={styles.tableCell}>
-                    {(page.status === 'pending' || page.status === 'ready') && (
-                      <button className={styles.editBtn}>Редактировать</button>
-                    )}
-                    {page.status === 'published' && <span className={styles.dash}>—</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {pages.length === 0 && <div className={styles.noPages}>Нет страниц</div>}
+
+          </main>
         </div>
       </div>
-    </div>
+    </SharedLandingBg>
   );
 }

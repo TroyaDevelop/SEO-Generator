@@ -1,18 +1,9 @@
-
-
-import React from 'react';
 import styles from './MainLanding.module.scss';
-import bg from '../../assets/svg/background.svg';
+import SharedLandingBg from '../SharedLandingBg/SharedLandingBg';
 
 export default function MainLanding({ keyword, setKeyword, onStart }) {
   return (
-    <div
-      className={styles.mainLandingBg}
-      style={{ background: `url(${bg}) center center/cover no-repeat` }}
-    >
-      <div className={styles.mainLandingSvgLeft}>
-  <img src={require('../../assets/svg/landImg.svg').default} alt="landing illustration" style={{ width: '100%', height: 'auto', display: 'block' }} />
-      </div>
+    <SharedLandingBg>
       <div className={styles.mainLandingCenter}>
         <div className={styles.mainLandingTitle}>
           <span className={styles.seoPurple}>SEO</span> <span className={styles.seoBlack}>Generator</span>
@@ -37,6 +28,6 @@ export default function MainLanding({ keyword, setKeyword, onStart }) {
           Быстро создаёт тексты, повышающие видимость и привлекающие трафик.
         </div>
       </div>
-    </div>
+    </SharedLandingBg>
   );
 }

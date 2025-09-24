@@ -1,0 +1,22 @@
+:root { box-sizing: border-box; }
+.mainLandingBg {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+}
+.mainLandingSvgLeft {
+  position: absolute;
+  left: 140px;
+  top: 350px;
+  bottom: 0;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 48px;
+  z-index: 1;
+}

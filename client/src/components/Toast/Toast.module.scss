@@ -1,15 +1,18 @@
 .toast {
   position: fixed;
-  top: 40px;
-  right: 40px;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   background: #fff0f0;
   color: #d32f2f;
   border: 1.5px solid #d32f2f;
   border-radius: 10px;
-  padding: 14px 28px;
-  font-size: 17px;
+  padding: 12px 20px;
+  font-size: 16px;
   font-weight: 500;
   z-index: 1000;
-  box-shadow: 0 2px 12px #d32f2f22;
-  transition: opacity 0.3s;
+  box-shadow: 0 6px 24px rgba(211,47,47,0.12);
+  transition: transform 0.22s cubic-bezier(.2,.9,.2,1), opacity 0.2s;
+  max-width: 720px;
+  width: calc(100% - 48px);
 }

@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './AuthModal.module.scss';
 
 export default function AuthModal({
   show, authMode, setAuthMode, authEmail, setAuthEmail, authPassword, setAuthPassword, authPasswordRepeat, setAuthPasswordRepeat, authError, handleAuth, setShowAuth
 }) {
+  useEffect(() => {
+    if (show) {
+      document.body.classList.add('modal-open');
+      // prevent background scroll
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+    };
+  }, [show]);
+
   if (!show) return null;
+
   return (
     <div className={styles.modalOverlay} onClick={() => setShowAuth(false)}>
       <form

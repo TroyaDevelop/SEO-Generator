@@ -169,7 +169,7 @@ export default function App() {
                   left: 64,
                   width: 340,
                   background: '#fff',
-                  border: '2px solid #a259e6',
+                  border: '2px solid #897CE9',
                   borderRadius: 16,
                   boxShadow: '0 2px 12px 0 #a259e622',
                   padding: 24,
@@ -194,11 +194,11 @@ export default function App() {
                             <a
                               href={`/download/${order.token}`}
                               style={{
-                                border: '1px solid #a259e6',
+                                border: '1px solid #897CE9',
                                 padding: '2px 8px',
                                 borderRadius: 6,
                                 fontSize: 13,
-                                color: '#a259e6',
+                                color: '#897CE9',
                                 background: '#f7f2fa',
                                 textDecoration: 'none',
                                 marginLeft: 8
@@ -223,13 +223,13 @@ export default function App() {
                       gap: 12
                     }}>
                       <span style={{fontWeight: 500, fontSize: 17}}>
-                        К оплате: <span style={{color: '#a259e6'}}>
+                        К оплате: <span style={{color: '#897CE9'}}>
                           {(orders.filter(o => o.pay === 0).length * 0.5).toFixed(2)} €
                         </span>
                       </span>
                       <button
                         style={{
-                          background: '#a259e6', color: '#fff', border: 'none', borderRadius: 8,
+                          background: '#897CE9', color: '#fff', border: 'none', borderRadius: 8,
                           padding: '8px 18px', fontWeight: 600, fontSize: 16, cursor: 'pointer', boxShadow: '0 2px 8px #a259e633'
                         }}
                         onClick={payOrders}

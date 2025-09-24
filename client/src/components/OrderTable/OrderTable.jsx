@@ -1,5 +1,3 @@
-
-import React from 'react';
 import styles from './OrderTable.module.scss';
 
 export default function OrderTable({ orders, loading, payOrders }) {
