@@ -3,7 +3,7 @@ import bg from '../../assets/svg/background.svg';
 import styles from './SeoPagesPanel.module.scss';
 import SharedLandingBg from '../SharedLandingBg/SharedLandingBg';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 export default function SeoPagesPanel() {
   // Состояния для формы (минимальный каркас)
@@ -24,6 +24,8 @@ export default function SeoPagesPanel() {
   // Состояние для семантики (заглушка)
   const [semanticList, setSemanticList] = useState([]); // [{word, checked}]
   const [semLoading, setSemLoading] = useState(false);
+  const [semOriginalList, setSemOriginalList] = useState(null);
+  const semPollRef = useRef(null);
   // Состояние для списка страниц
   const [pages, setPages] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -48,10 +50,32 @@ export default function SeoPagesPanel() {
 
   // Получить семантику через новую таблицу (сохраняется подборка и возвращается токен)
   const [semToken, setSemToken] = useState(null);
+  const [semTaskId, setSemTaskId] = useState(null);
+  const [semPolling, setSemPolling] = useState(false);
+  const [showSemModal, setShowSemModal] = useState(false);
+  const [semLastKeyword, setSemLastKeyword] = useState('');
+  const [semGeneratedList, setSemGeneratedList] = useState([]); // full list returned by bot
   const fetchSemantics = async () => {
-    if (!form.main_keyword || form.main_keyword.trim().length < 3) {
-      setToast('Введите ключевое слово (минимум 3 символа)');
+    if (!form.main_keyword || form.main_keyword.trim().length < 5) {
+      setToast('Введите ключевое слово (минимум 5 символов)');
       setTimeout(() => setToast(''), 2000);
+      return;
+    }
+    // if keyword hasn't changed since last generation — just open modal with existing list
+    const normalized = form.main_keyword.trim();
+    if (semLastKeyword && normalized === semLastKeyword) {
+      // restore semanticList from last generated full list and current saved selections
+      const full = Array.isArray(semGeneratedList) && semGeneratedList.length ? semGeneratedList : [];
+      const saved = Array.isArray(form.semantic_keywords) ? form.semantic_keywords : [];
+      if (full.length > 0) {
+        const merged = full.map(word => ({ word, checked: saved.includes(word) }));
+        setSemanticList(merged);
+      } else {
+        // fallback: show saved selections as checked items
+        const fallback = saved.map(word => ({ word, checked: true }));
+        setSemanticList(fallback);
+      }
+      setShowSemModal(true);
       return;
     }
     setSemLoading(true);
@@ -70,24 +94,57 @@ export default function SeoPagesPanel() {
         'окна для дачи',
         'окна в квартиру',
       ];
-      // Сохраняем подборку через API
-      const res = await fetch('/api/seo-pages/semantic-collections/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwt}`
-        },
-        body: JSON.stringify({ main_keyword: form.main_keyword, semantic_keywords: fakeSemantics })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setToast(data.error || 'Ошибка генерации семантики');
+      // Создаём задачу на сервере (бот выполнит генерацию в фоне)
+      try {
+        const taskRes = await fetch('/semantic-tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+          body: JSON.stringify({ main_keyword: form.main_keyword })
+        });
+        const taskData = await taskRes.json();
+        if (!taskRes.ok) {
+          setToast(taskData.error || 'Ошибка создания задачи семантики');
+          setTimeout(() => setToast(''), 2000);
+          setSemLoading(false);
+          return;
+        }
+        // Открываем модал и начинаем опрос задачи
+        setSemTaskId(taskData.id);
+        setShowSemModal(true);
+        setSemPolling(true);
+        // polling
+        const poll = async () => {
+          const ping = await fetch(`/semantic-tasks/${taskData.id}`, { headers: { 'Authorization': `Bearer ${jwt}` } });
+          if (!ping.ok) return null;
+          const d = await ping.json();
+          return d;
+        };
+        // store interval id in ref so we can clear it on cancel
+        semPollRef.current = setInterval(async () => {
+          const d = await poll();
+          if (d && d.status === 'ready') {
+            clearInterval(semPollRef.current);
+            semPollRef.current = null;
+            setSemPolling(false);
+            setShowSemModal(true);
+            // keep the generated list visible but remember the previous saved selection so Cancel can revert
+            const generatedArr = Array.isArray(d.result_keywords) ? d.result_keywords : [];
+            const generated = generatedArr.map(word => ({ word, checked: true }));
+            setSemanticList(generated);
+            setSemGeneratedList(generatedArr);
+            // previous saved semantics from form (if any) — used to restore on Cancel
+            const prev = Array.isArray(form.semantic_keywords) ? form.semantic_keywords.map(word => ({ word, checked: true })) : [];
+            setSemOriginalList(prev);
+            setSemToken(null);
+            setSemTaskId(null);
+            // remember last generated keyword
+            setSemLastKeyword(normalized);
+          }
+        }, 1500);
+      } catch (e) {
+        setToast('Ошибка сети или сервера при создании задачи');
         setTimeout(() => setToast(''), 2000);
-        setSemLoading(false);
-        return;
       }
-      setSemToken(data.token);
-      setSemanticList(Array.isArray(data.semantic_keywords) ? data.semantic_keywords.map(word => ({ word, checked: true })) : []);
     } catch (e) {
       setToast('Ошибка сети или сервера');
       setTimeout(() => setToast(''), 2000);
@@ -107,7 +164,22 @@ export default function SeoPagesPanel() {
     setForm(f => ({ ...f, semantic_keywords: selected }));
     setToast('Ключевые слова сохранены!');
     setTimeout(() => setToast(''), 1500);
+    // saved — clear original snapshot
+    setSemOriginalList(null);
+    // after saving, mark last keyword as current form keyword so re-opening doesn't regenerate
+    const normalized = form.main_keyword ? form.main_keyword.trim() : '';
+    if (normalized) setSemLastKeyword(normalized);
   };
+
+  // toggle body class so global selectors can dim and disable background UI
+  useEffect(() => {
+    if (showSemModal) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => document.body.classList.remove('modal-open');
+  }, [showSemModal]);
 
   // Получить список страниц
   const fetchPages = async () => {
@@ -127,8 +199,8 @@ export default function SeoPagesPanel() {
     e.preventDefault();
     setToast('');
     // Валидация на фронте
-    if (!form.main_keyword || form.main_keyword.trim().length < 3) {
-      setToast('Основное ключевое слово должно быть не короче 3 символов');
+    if (!form.main_keyword || form.main_keyword.trim().length < 5) {
+      setToast('Основное ключевое слово должно быть не короче 5 символов');
       setTimeout(() => setToast(''), 3000); return;
     }
     if (!form.video_url || !/^https?:\/\/.+/.test(form.video_url)) {
@@ -253,6 +325,41 @@ export default function SeoPagesPanel() {
                   >
                     подобрать семантику
                   </button>
+                  {showSemModal && (
+                    <div className={styles.semanticModalOverlay}>
+                      <div className={styles.semanticModal}>
+                        <h3>Подобранные ключевые слова</h3>
+                        {semPolling && <div>Идёт генерация...</div>}
+                        <div className={styles.semanticList}
+                             onCopy={e => e.preventDefault()}
+                             onContextMenu={e => e.preventDefault()}
+                             onDragStart={e => e.preventDefault()}>
+                          {semanticList.map((item, idx) => (
+                            <div key={idx} className={styles.semanticItem} onClick={() => handleSemanticCheck(idx)}>
+                              <input type="checkbox" checked={item.checked} readOnly />
+                              <span>{item.word}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{display:'flex', justifyContent:'flex-end', gap:8}}>
+                          <button type="button" className={styles.saveSemBtn} onClick={() => { saveSelectedSemantics(); setShowSemModal(false); }}>Сохранить</button>
+                          <button type="button" onClick={() => {
+                            // Cancel: restore previous saved semantics (do not persist current checks)
+                            if (semPollRef.current) {
+                              clearInterval(semPollRef.current);
+                              semPollRef.current = null;
+                            }
+                            if (semOriginalList) {
+                              setSemanticList(semOriginalList);
+                            }
+                            setSemPolling(false);
+                            setSemTaskId(null);
+                            setShowSemModal(false);
+                          }}>Отменить</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.inputRow}>
                   <input name="category" value={form.category} onChange={handleChange} placeholder="Категория" className={styles.input350} />

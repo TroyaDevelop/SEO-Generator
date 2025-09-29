@@ -569,14 +569,30 @@
 }
 
 .semanticList {
-	max-height: 180px;
+	/* allow the list to grow but cap it so the modal stays usable; enable inner scrolling */
+	max-height: 320px;
 	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
 	border: 1px solid #e0d7f7;
 	border-radius: 8px;
 	background: #fff;
 	padding: 8px;
 	margin-top: 8px;
 	margin-bottom: 8px;
+}
+
+/* prevent user selection / copying of keywords inside the modal */
+.semanticList, .semanticList * {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none; /* iOS Safari */
+}
+
+.semanticItem span {
+	/* ensure the label text is not selectable while checkbox remains interactive */
+	display: inline-block;
 }
 
 .semanticItem {
@@ -586,6 +602,28 @@
 	margin-bottom: 4px;
 	cursor: pointer;
 }
+
+/* Modal for semantic results */
+.semanticModalOverlay {
+	position: fixed;
+	left: 0; right: 0; top: 0; bottom: 0;
+	background: rgba(0,0,0,0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1200;
+}
+.semanticModal {
+	width: 680px;
+	max-width: 94%;
+	background: #fff;
+	border-radius: 12px;
+	padding: 18px;
+	box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+	color: #222;
+}
+.semanticModal h3 { margin: 0 0 12px 0; font-size: 20px; }
+.saveSemBtn { background: #897CE9; color: #fff; border: none; border-radius: 8px; padding: 6px 22px; font-weight: 600; font-size: 15px; cursor: pointer; }
 
 .saveSemBtn {
 	background: #897CE9;

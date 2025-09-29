@@ -1,6 +1,8 @@
 import express from 'express';
 import { createSemanticCollectionHandler, getSemanticCollectionHandler } from '../controllers/semanticCollectionController.js';
 import { generateSemanticsHandler } from '../controllers/semanticController.js';
+import { createSemanticTaskHandler, getSemanticTaskHandler } from '../controllers/semanticTaskController.js';
+import { getPendingSemanticTasksHandler, completeSemanticTaskHandler } from '../controllers/semanticTaskController.js';
 import {
   createSeoPageHandler,
   getSeoPagesHandler,
@@ -33,6 +35,14 @@ router.post('/semantic/generate', generateSemanticsHandler);
 // API для работы с подборками семантики (требует авторизации)
 router.post('/semantic-collections/create', authMiddleware, createSemanticCollectionHandler);
 router.get('/semantic-collections/:token', authMiddleware, getSemanticCollectionHandler);
+
+// Semantic task endpoints (create task, get status/result)
+router.post('/semantic-tasks', authMiddleware, createSemanticTaskHandler);
+router.get('/semantic-tasks/:id', authMiddleware, getSemanticTaskHandler);
+
+// Endpoints for bot
+router.get('/tasks/semantic-tasks', getPendingSemanticTasksHandler);
+router.post('/tasks/semantic-tasks/:id/complete', completeSemanticTaskHandler);
 
 
 // CRUD для пользователя

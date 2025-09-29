@@ -12,6 +12,20 @@ CREATE TABLE IF NOT EXISTS `semantic_collections` (
   CONSTRAINT `fk_semcoll_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- --------------------------------------------------------
+-- Таблица задач генерации семантики для бота
+CREATE TABLE IF NOT EXISTS `semantic_tasks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `main_keyword` varchar(255) NOT NULL,
+  `status` enum('pending','ready') DEFAULT 'pending',
+  `result_keywords` longtext DEFAULT NULL,
+  `created_at` timestamp DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_semtask_user_id` (`user_id`),
+  CONSTRAINT `fk_semtask_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- --------------------------------------------------------
 -- Хост:                     127.0.0.1
 -- Версия сервера:  10.11.13-MariaDB-0ubuntu0.24.04.1 - Ubuntu 24.04
 -- Операционная система:debian-linux-gnu

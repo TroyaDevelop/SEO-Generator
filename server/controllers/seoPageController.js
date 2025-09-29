@@ -16,8 +16,8 @@ export async function createSeoPageHandler(req, res) {
     } = req.body;
 
     // Валидация: ключевое слово
-    if (!main_keyword || typeof main_keyword !== 'string' || main_keyword.trim().length < 3) {
-      return res.status(400).json({ error: 'Основное ключевое слово должно быть не короче 3 символов' });
+    if (!main_keyword || typeof main_keyword !== 'string' || main_keyword.trim().length < 5) {
+      return res.status(400).json({ error: 'Основное ключевое слово должно быть не короче 5 символов' });
     }
     // Валидация: телефон (простой паттерн)
     if (phone && !/^\+?[0-9\-() ]{7,}$/.test(phone)) {
@@ -32,8 +32,8 @@ export async function createSeoPageHandler(req, res) {
     if (typeof sems === 'string') {
       try { sems = JSON.parse(sems); } catch { sems = []; }
     }
-    if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => typeof k !== 'string' || k.trim().length < 3)) {
-      return res.status(400).json({ error: 'Добавьте хотя бы одно ключевое слово (минимум 3 символа)' });
+    if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => typeof k !== 'string' || k.trim().length < 5)) {
+      return res.status(400).json({ error: 'Добавьте хотя бы одно ключевое слово (минимум 5 символов)' });
     }
 
     const page = await createSeoPage({ ...req.body, user_id: userId });
