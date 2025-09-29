@@ -1,7 +1,20 @@
 
 import styles from './TabSwitcher.module.scss';
 
-export default function TabSwitcher({ tab, setTab }) {
+export default function TabSwitcher({ tab, setTab, user, setShowAuth, setAuthMode }) {
+  const openLogin = () => {
+    setAuthMode && setAuthMode('login');
+    setShowAuth && setShowAuth(true);
+  };
+
+  const handlePagesClick = () => {
+    if (!user) {
+      openLogin();
+      return;
+    }
+    setTab('pages');
+  };
+
   return (
     <div className={styles.tabSwitcher}>
       <button
@@ -11,7 +24,7 @@ export default function TabSwitcher({ tab, setTab }) {
         Генерация SEO-текстов
       </button>
       <button
-        onClick={() => setTab('pages')}
+        onClick={handlePagesClick}
         className={tab === 'pages' ? `${styles.tabBtn} ${styles.tabBtnActive}` : styles.tabBtn}
       >
         Генератор SEO-страниц

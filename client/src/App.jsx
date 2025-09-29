@@ -103,6 +103,10 @@ export default function App() {
   // Выйти
   const logout = () => {
     setUser(null); setToken(''); localStorage.removeItem('jwt'); setOrders([]);
+    // При выходе принудительно вернём пользователя на главную и на вкладку генерации текстов
+    setPage('main');
+    setTab('texts');
+    setShowAuth(false);
   };
 
   // Аутентификация (логин/регистрация)
@@ -157,7 +161,7 @@ export default function App() {
 
       {page === 'main' && (
         <div style={{position: 'relative', width: '100vw', minHeight: '100vh'}}>
-          <TabSwitcher tab={tab} setTab={setTab} />
+          <TabSwitcher tab={tab} setTab={setTab} user={user} setShowAuth={setShowAuth} setAuthMode={setAuthMode} />
           {/* Старая логика генерации текстов */}
           {tab === 'texts' && (
             <>
