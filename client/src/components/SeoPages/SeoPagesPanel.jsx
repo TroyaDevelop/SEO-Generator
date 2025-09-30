@@ -4,6 +4,7 @@ import styles from './SeoPagesPanel.module.scss';
 import SharedLandingBg from '../SharedLandingBg/SharedLandingBg';
 
 import React, { useEffect, useState, useRef } from 'react';
+import Toast from '../../components/Toast';
 
 export default function SeoPagesPanel() {
   // Состояния для формы (минимальный каркас)
@@ -56,8 +57,11 @@ export default function SeoPagesPanel() {
   const [semLastKeyword, setSemLastKeyword] = useState('');
   const [semGeneratedList, setSemGeneratedList] = useState([]); // full list returned by bot
   const fetchSemantics = async () => {
-    if (!form.main_keyword || form.main_keyword.trim().length < 5) {
-      setToast('Введите ключевое слово (минимум 5 символов)');
+    const normalizedMain = form.main_keyword ? form.main_keyword.trim() : '';
+    // only letters allowed, no spaces or digits/specials
+    const validKeywordRegex = /^[A-Za-zА-Яа-яЁё]+$/u;
+    if (!normalizedMain || normalizedMain.length < 6 || !validKeywordRegex.test(normalizedMain)) {
+      setToast('Введите ключевое слово: одно слово, минимум 6 букв, только буквы');
       setTimeout(() => setToast(''), 2000);
       return;
     }
@@ -109,7 +113,8 @@ export default function SeoPagesPanel() {
           return;
         }
         // Открываем модал и начинаем опрос задачи
-        setSemTaskId(taskData.id);
+  setSemTaskId(taskData.id);
+  if (taskData.token) setSemToken(taskData.token);
         setShowSemModal(true);
         setSemPolling(true);
         // polling
@@ -122,7 +127,7 @@ export default function SeoPagesPanel() {
         // store interval id in ref so we can clear it on cancel
         semPollRef.current = setInterval(async () => {
           const d = await poll();
-          if (d && d.status === 'ready') {
+          if (d && d.pay === 2) {
             clearInterval(semPollRef.current);
             semPollRef.current = null;
             setSemPolling(false);
@@ -187,6 +192,13 @@ export default function SeoPagesPanel() {
     const res = await fetch('/seo-pages', {
       headers: { Authorization: `Bearer ${token}` }
     });
+    if (res.status === 401) {
+      // token missing or invalid — force user back to main (will show login if needed)
+      localStorage.removeItem('jwt');
+      // reload to let App pick up missing token and show main page
+      window.location.href = '/';
+      return;
+    }
     if (res.ok) {
       setPages(await res.json());
     }
@@ -199,8 +211,10 @@ export default function SeoPagesPanel() {
     e.preventDefault();
     setToast('');
     // Валидация на фронте
-    if (!form.main_keyword || form.main_keyword.trim().length < 5) {
-      setToast('Основное ключевое слово должно быть не короче 5 символов');
+    const normalizedMain2 = form.main_keyword ? form.main_keyword.trim() : '';
+    const validKeywordRegex2 = /^[A-Za-zА-Яа-яЁё]+$/u;
+    if (!normalizedMain2 || normalizedMain2.length < 6 || !validKeywordRegex2.test(normalizedMain2)) {
+      setToast('Основное ключевое слово должно быть одно слово: минимум 6 букв, только буквы');
       setTimeout(() => setToast(''), 3000); return;
     }
     if (!form.video_url || !/^https?:\/\/.+/.test(form.video_url)) {
@@ -211,8 +225,10 @@ export default function SeoPagesPanel() {
       setToast('Некорректный формат телефона');
       setTimeout(() => setToast(''), 3000); return;
     }
-    if (!Array.isArray(form.semantic_keywords) || form.semantic_keywords.length === 0 || form.semantic_keywords.some(k => !k || k.trim().length < 3)) {
-      setToast('Добавьте хотя бы одно ключевое слово (минимум 3 символа)');
+    const sems = Array.isArray(form.semantic_keywords) ? form.semantic_keywords : [];
+    const semValidRe = /^[A-Za-zА-Яа-яЁё]+$/u;
+    if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => !k || k.trim().length < 6 || !semValidRe.test(k.trim()))) {
+      setToast('Добавьте хотя бы одно ключевое слово: одно слово, минимум 6 букв, только буквы');
       setTimeout(() => setToast(''), 3000); return;
     }
     // 1. Отправить данные страницы (без изображений)
@@ -262,7 +278,7 @@ export default function SeoPagesPanel() {
   return (
     <SharedLandingBg className={styles.root}>
       <div className={styles.panel}>
-        {toast && <div className={styles.toast}>{toast}</div>}
+  <Toast show={!!toast} message={toast} />
 
         <div className={styles.columns}>
           <aside className={styles.leftColumn}>

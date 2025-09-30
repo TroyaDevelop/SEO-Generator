@@ -16,7 +16,7 @@ async function poll() {
     if (!Array.isArray(tasks) || tasks.length === 0) return;
 
     for (const t of tasks) {
-      console.log('Processing task', t.id, t.main_keyword);
+      console.log('Processing task', t.id, t.token, t.main_keyword);
       const base = (t.main_keyword || '').trim();
       const words = base.split(/\s+/).filter(Boolean);
       const keywords = new Set();
@@ -28,9 +28,12 @@ async function poll() {
       keywords.add(base + ' цена');
       keywords.add(base + ' купить');
 
+      // send token if present so server can identify task by token
       const body = { keywords: Array.from(keywords) };
+      if (t.token) body.token = t.token;
 
-      const completeRes = await fetch(`${SERVER}/tasks/semantic-tasks/${t.id}/complete`, {
+      const url = t.id ? `${SERVER}/tasks/semantic-tasks/${t.id}/complete` : `${SERVER}/tasks/semantic-tasks/complete`;
+      const completeRes = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-bot-token': BOT_TOKEN },
         body: JSON.stringify(body)

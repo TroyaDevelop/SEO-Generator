@@ -249,11 +249,18 @@ export default function App() {
                 keyword={keyword}
                 setKeyword={setKeyword}
                 onStart={() => {
+                  const normalized = keyword ? keyword.trim() : '';
+                  const validKeywordRegex = /^[A-Za-zА-Яа-яЁё]+$/u; // single word only
                   if (!user) {
                     setShowAuth(true);
                     setAuthMode('login');
-                  } else if (keyword) {
+                  } else if (normalized && normalized.length >= 6 && validKeywordRegex.test(normalized)) {
                     createOrder();
+                  } else {
+                    // show a quick toast using shared Toast component
+                    setOrderError('Ключевое слово: одно слово, минимум 6 букв, только буквы');
+                    setShowOrderError(true);
+                    setTimeout(() => setShowOrderError(false), 3000);
                   }
                 }}
               />

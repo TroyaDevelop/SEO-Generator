@@ -1,27 +1,17 @@
--- Дамп структуры для таблица seo_db.semantic_collections
-CREATE TABLE IF NOT EXISTS `semantic_collections` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `main_keyword` varchar(255) NOT NULL,
-  `semantic_keywords` longtext DEFAULT NULL,
-  `created_at` timestamp DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `token` (`token`),
-  KEY `fk_semcoll_user_id` (`user_id`),
-  CONSTRAINT `fk_semcoll_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- --------------------------------------------------------
--- Таблица задач генерации семантики для бота
+-- Таблица задач генерации семантики для бота (с токеном и полем pay)
 CREATE TABLE IF NOT EXISTS `semantic_tasks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
+  `token` varchar(64) DEFAULT NULL,
   `main_keyword` varchar(255) NOT NULL,
-  `status` enum('pending','ready') DEFAULT 'pending',
+  `pay` tinyint(1) DEFAULT 1 COMMENT '1 = pending, 2 = ready',
   `result_keywords` longtext DEFAULT NULL,
   `created_at` timestamp DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`token`),
   KEY `fk_semtask_user_id` (`user_id`),
   CONSTRAINT `fk_semtask_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

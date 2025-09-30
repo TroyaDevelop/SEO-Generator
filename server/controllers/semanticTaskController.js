@@ -33,8 +33,8 @@ export async function getSemanticTaskHandler(req, res) {
 import { markSemanticTaskReady } from '../models/semanticTaskModel.js';
 export async function getPendingSemanticTasksHandler(req, res) {
   try {
-    const [rows] = await import('../models/db.js').then(m => m.pool.execute(`SELECT * FROM semantic_tasks WHERE status = 'pending'`));
-    const tasks = rows.map(r => ({ id: r.id, user_id: r.user_id, main_keyword: r.main_keyword }));
+    const [rows] = await import('../models/db.js').then(m => m.pool.execute(`SELECT * FROM semantic_tasks WHERE pay = 1`));
+    const tasks = rows.map(r => ({ id: r.id, token: r.token, main_keyword: r.main_keyword }));
     res.json(tasks);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -45,8 +45,16 @@ export async function getPendingSemanticTasksHandler(req, res) {
 export async function completeSemanticTaskHandler(req, res) {
   try {
     const { id } = req.params;
-    const { keywords } = req.body;
+    const { keywords, token } = req.body;
     if (!Array.isArray(keywords)) return res.status(400).json({ error: 'Invalid keywords' });
+    // If token provided, prefer token-based lookup (bot may send token instead of id)
+    if (token) {
+      const [rows] = await import('../models/db.js').then(m => m.pool.execute(`SELECT id FROM semantic_tasks WHERE token = ?`, [token]));
+      if (rows.length === 0) return res.status(404).json({ error: 'Task not found by token' });
+      const foundId = rows[0].id;
+      await markSemanticTaskReady(foundId, keywords);
+      return res.json({ ok: true });
+    }
     await markSemanticTaskReady(id, keywords);
     res.json({ ok: true });
   } catch (e) {

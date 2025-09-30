@@ -10,6 +10,7 @@ import {
   publishSeoPageHandler
 } from '../controllers/seoPageController.js';
 import { authMiddleware } from '../utils/auth.js';
+import { botAuthMiddleware } from '../utils/botAuth.js';
 import multer from 'multer';
 import path from 'path';
 import { uploadSeoPageImageHandler } from '../controllers/seoPageImageController.js';
@@ -41,8 +42,9 @@ router.post('/semantic-tasks', authMiddleware, createSemanticTaskHandler);
 router.get('/semantic-tasks/:id', authMiddleware, getSemanticTaskHandler);
 
 // Endpoints for bot
-router.get('/tasks/semantic-tasks', getPendingSemanticTasksHandler);
-router.post('/tasks/semantic-tasks/:id/complete', completeSemanticTaskHandler);
+// Bot endpoints: require bot token in header `x-bot-token` when enabled
+router.get('/tasks/semantic-tasks', botAuthMiddleware, getPendingSemanticTasksHandler);
+router.post('/tasks/semantic-tasks/:id/complete', botAuthMiddleware, completeSemanticTaskHandler);
 
 
 // CRUD для пользователя
