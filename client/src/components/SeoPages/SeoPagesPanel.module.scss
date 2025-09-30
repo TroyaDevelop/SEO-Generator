@@ -637,6 +637,15 @@
 	cursor: pointer;
 }
 
+.saveSemBtn:disabled,
+.saveSemBtn[disabled] {
+  background: #d6d6df;
+  color: #8b8b8b;
+  box-shadow: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .label {
 	font-weight: 500;
 	margin-right: 12px;

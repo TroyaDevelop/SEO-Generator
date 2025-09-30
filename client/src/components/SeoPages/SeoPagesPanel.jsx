@@ -56,6 +56,7 @@ export default function SeoPagesPanel() {
   const [showSemModal, setShowSemModal] = useState(false);
   const [semLastKeyword, setSemLastKeyword] = useState('');
   const [semGeneratedList, setSemGeneratedList] = useState([]); // full list returned by bot
+  const [semProgress, setSemProgress] = useState(0); // 0..100
   const fetchSemantics = async () => {
     const normalizedMain = form.main_keyword ? form.main_keyword.trim() : '';
     // only letters allowed, no spaces or digits/specials
@@ -117,6 +118,7 @@ export default function SeoPagesPanel() {
   if (taskData.token) setSemToken(taskData.token);
         setShowSemModal(true);
         setSemPolling(true);
+        setSemProgress(5);
         // polling
         const poll = async () => {
           const ping = await fetch(`/semantic-tasks/${taskData.id}`, { headers: { 'Authorization': `Bearer ${jwt}` } });
@@ -131,6 +133,7 @@ export default function SeoPagesPanel() {
             clearInterval(semPollRef.current);
             semPollRef.current = null;
             setSemPolling(false);
+            setSemProgress(100);
             setShowSemModal(true);
             // keep the generated list visible but remember the previous saved selection so Cancel can revert
             const generatedArr = Array.isArray(d.result_keywords) ? d.result_keywords : [];
@@ -144,6 +147,9 @@ export default function SeoPagesPanel() {
             setSemTaskId(null);
             // remember last generated keyword
             setSemLastKeyword(normalized);
+          } else {
+            // increment progress smoothly but don't reach 100 until ready
+            setSemProgress(p => Math.min(95, p + Math.floor(Math.random() * 12) + 5));
           }
         }, 1500);
       } catch (e) {
@@ -165,6 +171,8 @@ export default function SeoPagesPanel() {
 
   // Сохранить выбранные ключевые слова
   const saveSelectedSemantics = () => {
+    // Prevent saving if no generated list is available or generation still in progress
+    if (!Array.isArray(semGeneratedList) || semGeneratedList.length === 0 || semPolling) return;
     const selected = semanticList.filter(s => s.checked).map(s => s.word);
     setForm(f => ({ ...f, semantic_keywords: selected }));
     setToast('Ключевые слова сохранены!');
@@ -346,6 +354,14 @@ export default function SeoPagesPanel() {
                       <div className={styles.semanticModal}>
                         <h3>Подобранные ключевые слова</h3>
                         {semPolling && <div>Идёт генерация...</div>}
+                        {semPolling && (
+                          <div style={{margin: '8px 0'}}>
+                            <div style={{height: 10, background: '#eee', borderRadius: 6, overflow: 'hidden'}}>
+                              <div style={{height: '100%', width: `${semProgress}%`, background: '#897CE9', transition: 'width 400ms ease'}} />
+                            </div>
+                            <div style={{fontSize: 12, color: '#666', marginTop: 6}}>{semProgress}%</div>
+                          </div>
+                        )}
                         <div className={styles.semanticList}
                              onCopy={e => e.preventDefault()}
                              onContextMenu={e => e.preventDefault()}
@@ -358,7 +374,15 @@ export default function SeoPagesPanel() {
                           ))}
                         </div>
                         <div style={{display:'flex', justifyContent:'flex-end', gap:8}}>
-                          <button type="button" className={styles.saveSemBtn} onClick={() => { saveSelectedSemantics(); setShowSemModal(false); }}>Сохранить</button>
+                          <button
+                            type="button"
+                            className={styles.saveSemBtn}
+                            onClick={() => { saveSelectedSemantics(); setShowSemModal(false); setSemProgress(0); }}
+                            disabled={semPolling || !Array.isArray(semGeneratedList) || semGeneratedList.length === 0}
+                            title={semPolling ? 'Идёт генерация...' : 'Сначала сгенерируйте ключевые слова'}
+                          >
+                            Сохранить
+                          </button>
                           <button type="button" onClick={() => {
                             // Cancel: restore previous saved semantics (do not persist current checks)
                             if (semPollRef.current) {
@@ -370,6 +394,7 @@ export default function SeoPagesPanel() {
                             }
                             setSemPolling(false);
                             setSemTaskId(null);
+                            setSemProgress(0);
                             setShowSemModal(false);
                           }}>Отменить</button>
                         </div>
