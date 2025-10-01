@@ -58,16 +58,16 @@ export default function SeoPagesPanel() {
   const [semGeneratedList, setSemGeneratedList] = useState([]); // full list returned by bot
   const [semProgress, setSemProgress] = useState(0); // 0..100
   const fetchSemantics = async () => {
-    const normalizedMain = form.main_keyword ? form.main_keyword.trim() : '';
-    // only letters allowed, no spaces or digits/specials
-    const validKeywordRegex = /^[A-Za-zА-Яа-яЁё]+$/u;
-    if (!normalizedMain || normalizedMain.length < 6 || !validKeywordRegex.test(normalizedMain)) {
+  const normalizedMain = form.main_keyword ? form.main_keyword.trim() : '';
+  // letters and spaces allowed
+  const validKeywordRegex = /^[A-Za-zА-Яа-яЁё ]+$/u;
+  if (!normalizedMain || normalizedMain.length < 6 || !validKeywordRegex.test(normalizedMain)) {
       setToast('Введите ключевое слово: одно слово, минимум 6 букв, только буквы');
       setTimeout(() => setToast(''), 2000);
       return;
     }
     // if keyword hasn't changed since last generation — just open modal with existing list
-    const normalized = form.main_keyword.trim();
+  const normalized = form.main_keyword.trim();
     if (semLastKeyword && normalized === semLastKeyword) {
       // restore semanticList from last generated full list and current saved selections
       const full = Array.isArray(semGeneratedList) && semGeneratedList.length ? semGeneratedList : [];
@@ -219,9 +219,9 @@ export default function SeoPagesPanel() {
     e.preventDefault();
     setToast('');
     // Валидация на фронте
-    const normalizedMain2 = form.main_keyword ? form.main_keyword.trim() : '';
-    const validKeywordRegex2 = /^[A-Za-zА-Яа-яЁё]+$/u;
-    if (!normalizedMain2 || normalizedMain2.length < 6 || !validKeywordRegex2.test(normalizedMain2)) {
+  const normalizedMain2 = form.main_keyword ? form.main_keyword.trim() : '';
+  const validKeywordRegex2 = /^[A-Za-zА-Яа-яЁё ]+$/u;
+  if (!normalizedMain2 || normalizedMain2.length < 6 || !validKeywordRegex2.test(normalizedMain2)) {
       setToast('Основное ключевое слово должно быть одно слово: минимум 6 букв, только буквы');
       setTimeout(() => setToast(''), 3000); return;
     }
@@ -234,8 +234,8 @@ export default function SeoPagesPanel() {
       setTimeout(() => setToast(''), 3000); return;
     }
     const sems = Array.isArray(form.semantic_keywords) ? form.semantic_keywords : [];
-    const semValidRe = /^[A-Za-zА-Яа-яЁё]+$/u;
-    if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => !k || k.trim().length < 6 || !semValidRe.test(k.trim()))) {
+  const semValidRe = /^[A-Za-zА-Яа-яЁё ]+$/u;
+  if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => !k || k.trim().length < 6 || !semValidRe.test(k.trim()))) {
       setToast('Добавьте хотя бы одно ключевое слово: одно слово, минимум 6 букв, только буквы');
       setTimeout(() => setToast(''), 3000); return;
     }

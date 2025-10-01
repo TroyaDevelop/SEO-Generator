@@ -1,4 +1,5 @@
 import { createSemanticTask, getSemanticTaskById } from '../models/semanticTaskModel.js';
+import { pool } from '../models/db.js';
 
 // POST /semantic-tasks
 export async function createSemanticTaskHandler(req, res) {
@@ -57,6 +58,18 @@ export async function completeSemanticTaskHandler(req, res) {
     }
     await markSemanticTaskReady(id, keywords);
     res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
+
+// DEBUG: return raw row from semantic_tasks (no parsing) for troubleshooting
+export async function getSemanticTaskRawHandler(req, res) {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.execute('SELECT * FROM semantic_tasks WHERE id = ?', [id]);
+    if (!rows || rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    return res.json(rows[0]);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

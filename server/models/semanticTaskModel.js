@@ -24,9 +24,36 @@ export async function getSemanticTaskById(id) {
   );
   if (rows.length === 0) return null;
   const row = rows[0];
+  let parsed = [];
+  let raw = row.result_keywords;
+  if (raw) {
+    try {
+      parsed = JSON.parse(raw);
+    } catch (err) {
+      // invalid JSON stored in DB — keep parsed as empty and expose raw for debugging
+      console.error('Failed to parse result_keywords for semantic_task', id, err && err.message);
+      // Try a simple sanitize pass: remove trailing commas before ] or }
+      try {
+        const cleaned = raw.replace(/,\s*(?=[\]\}])/g, '');
+        parsed = JSON.parse(cleaned);
+        // keep raw too but indicate we sanitized
+        return {
+          ...row,
+          result_keywords: parsed,
+          result_keywords_raw: raw,
+          result_keywords_sanitized: true
+        };
+      } catch (err2) {
+        // still invalid
+        parsed = [];
+      }
+    }
+  }
   return {
     ...row,
-    result_keywords: row.result_keywords ? JSON.parse(row.result_keywords) : []
+    result_keywords: parsed,
+    result_keywords_raw: raw,
+    result_keywords_sanitized: false
   };
 }
 

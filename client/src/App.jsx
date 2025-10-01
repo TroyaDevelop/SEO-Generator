@@ -250,7 +250,7 @@ export default function App() {
                 setKeyword={setKeyword}
                 onStart={() => {
                   const normalized = keyword ? keyword.trim() : '';
-                  const validKeywordRegex = /^[A-Za-zА-Яа-яЁё]+$/u; // single word only
+                  const validKeywordRegex = /^[A-Za-zА-Яа-яЁё ]+$/u; // letters and spaces allowed
                   if (!user) {
                     setShowAuth(true);
                     setAuthMode('login');
