@@ -32,8 +32,8 @@ export async function createSeoPageHandler(req, res) {
     if (typeof sems === 'string') {
       try { sems = JSON.parse(sems); } catch { sems = []; }
     }
-    if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => typeof k !== 'string' || k.trim().length < 6)) {
-      return res.status(400).json({ error: 'Добавьте хотя бы одно ключевое слово (минимум 6 символов)' });
+    if (!Array.isArray(sems) || sems.length === 0 || sems.some(k => typeof k !== 'string' || k.trim().length < 5)) {
+      return res.status(400).json({ error: 'Добавьте хотя бы одно ключевое слово (минимум 5 символов)' });
     }
 
     const page = await createSeoPage({ ...req.body, user_id: userId });

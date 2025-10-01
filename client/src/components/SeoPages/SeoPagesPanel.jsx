@@ -129,7 +129,7 @@ export default function SeoPagesPanel() {
         // store interval id in ref so we can clear it on cancel
         semPollRef.current = setInterval(async () => {
           const d = await poll();
-          if (d && d.pay === 2) {
+          if (d && d.pay === 3) {
             clearInterval(semPollRef.current);
             semPollRef.current = null;
             setSemPolling(false);

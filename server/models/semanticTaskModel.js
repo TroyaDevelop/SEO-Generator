@@ -32,7 +32,7 @@ export async function getSemanticTaskById(id) {
 
 export async function markSemanticTaskReady(id, keywords) {
   await pool.execute(
-    `UPDATE semantic_tasks SET pay = 2, result_keywords = ?, updated_at = current_timestamp() WHERE id = ?`,
+    `UPDATE semantic_tasks SET pay = 3, result_keywords = ?, updated_at = current_timestamp() WHERE id = ?`,
     [JSON.stringify(keywords), id]
   );
 }
