@@ -1,8 +1,7 @@
 import express from 'express';
 import { createSemanticCollectionHandler, getSemanticCollectionHandler } from '../controllers/semanticCollectionController.js';
 import { generateSemanticsHandler } from '../controllers/semanticController.js';
-import { createSemanticTaskHandler, getSemanticTaskHandler } from '../controllers/semanticTaskController.js';
-import { getPendingSemanticTasksHandler, completeSemanticTaskHandler } from '../controllers/semanticTaskController.js';
+import { createSemanticTaskHandler, getSemanticTaskHandler, getPendingSemanticTasksHandler, completeSemanticTaskHandler, getSemanticTaskRawHandler } from '../controllers/semanticTaskController.js';
 import {
   createSeoPageHandler,
   getSeoPagesHandler,
